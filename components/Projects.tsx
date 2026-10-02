@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ExternalLink, Github, LayoutGrid } from "lucide-react";
 import Reveal from "./Reveal";
@@ -23,8 +24,19 @@ export default function Projects() {
                 transition={{ duration: 0.2 }}
                 className="h-full flex flex-col rounded-2xl border border-surface-line bg-white overflow-hidden hover:shadow-soft transition-shadow"
               >
-                <div className="relative h-36 shrink-0 bg-gradient-to-br from-primary-500 to-primary-800 flex items-center justify-center">
-                  <LayoutGrid className="text-white/70" size={30} />
+                {/* Project image (falls back to gradient if none) */}
+                <div className="relative h-44 shrink-0 overflow-hidden bg-gradient-to-br from-primary-500 to-primary-800 flex items-center justify-center">
+                  {project.image ? (
+                    <Image
+                      src={project.image}
+                      alt={`${project.title} screenshot`}
+                      fill
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-cover object-top transition-transform duration-500 hover:scale-105"
+                    />
+                  ) : (
+                    <LayoutGrid className="text-white/70" size={30} />
+                  )}
                 </div>
 
                 <div className="flex flex-col flex-1 p-6">
