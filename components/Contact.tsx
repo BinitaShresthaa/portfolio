@@ -7,6 +7,7 @@ import SectionHeading from "./SectionHeading";
 import { siteConfig } from "@/data/site";
 
 type Errors = Partial<Record<"name" | "email" | "message", string>>;
+type Status = "idle" | "sending" | "success" | "error";
 
 const contactInfo = [
   { icon: Mail, label: siteConfig.email, href: `mailto:${siteConfig.email}` },
@@ -20,9 +21,15 @@ const socialLinks = [
 ];
 
 export default function Contact() {
-  const [values, setValues] = useState({ name: "", email: "", message: "" });
+  const [values, setValues] = useState({
+    name: "",
+    email: "",
+    message: "",
+    company_url: "",
+  });
   const [errors, setErrors] = useState<Errors>({});
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<Status>("idle");
+  const [serverError, setServerError] = useState("");
 
   function validate(): boolean {
     const next: Errors = {};
@@ -39,13 +46,31 @@ export default function Contact() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!validate()) return;
+    if (status === "sending" || !validate()) return;
 
-    // TODO: connect this to a real email service — e.g. a Next.js API
-    // route with Resend/Nodemailer, or a form backend like Formspree.
-    // This currently just simulates a successful submission.
-    setSubmitted(true);
-    setValues({ name: "", email: "", message: "" });
+    setStatus("sending");
+    setServerError("");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setServerError(data.error || "Something went wrong. Please try again.");
+        setStatus("error");
+        return;
+      }
+
+      setValues({ name: "", email: "", message: "", company_url: "" });
+      setStatus("success");
+    } catch {
+      setServerError("Network error. Please check your connection and try again.");
+      setStatus("error");
+    }
   }
 
   return (
@@ -97,18 +122,17 @@ export default function Contact() {
           </Reveal>
 
           <Reveal delay={0.1}>
-            {submitted ? (
+            {status === "success" ? (
               <div className="rounded-2xl border border-primary-100 bg-primary-50 p-8 flex flex-col items-start gap-3">
                 <CheckCircle2 className="text-primary-600" size={28} />
                 <p className="font-display font-semibold text-ink">
-                  Message ready to send
+                  Message sent
                 </p>
                 <p className="text-sm text-slate-muted leading-relaxed">
-                  Thanks for reaching out — connect a form backend (see the
-                  TODO in Contact.tsx) so messages actually reach your inbox.
+                  Thanks for reaching out. I'll get back to you as soon as I can.
                 </p>
                 <button
-                  onClick={() => setSubmitted(false)}
+                  onClick={() => setStatus("idle")}
                   className="text-sm font-medium text-primary-600 hover:text-primary-700"
                 >
                   Send another message
@@ -118,8 +142,27 @@ export default function Contact() {
               <form
                 noValidate
                 onSubmit={handleSubmit}
-                className="rounded-2xl border border-surface-line p-6 sm:p-8 space-y-5"
+                className="relative rounded-2xl border border-surface-line p-6 sm:p-8 space-y-5"
               >
+                {/* Hidden spam trap: real users never see or fill this */}
+                <div
+                  className="absolute -left-[9999px] h-0 w-0 overflow-hidden"
+                  aria-hidden="true"
+                >
+                  <label htmlFor="company_url">Company URL</label>
+                  <input
+                    id="company_url"
+                    name="company_url"
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="new-password"
+                    value={values.company_url}
+                    onChange={(e) =>
+                      setValues((v) => ({ ...v, company_url: e.target.value }))
+                    }
+                  />
+                </div>
+
                 <div>
                   <label
                     htmlFor="name"
@@ -191,11 +234,18 @@ export default function Contact() {
                   )}
                 </div>
 
+                {status === "error" && (
+                  <p className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-700">
+                    {serverError}
+                  </p>
+                )}
+
                 <button
                   type="submit"
-                  className="inline-flex items-center justify-center rounded-full bg-primary-600 px-6 py-3 text-sm font-medium text-white hover:bg-primary-700 transition-colors w-full sm:w-auto"
+                  disabled={status === "sending"}
+                  className="inline-flex items-center justify-center rounded-full bg-primary-600 px-6 py-3 text-sm font-medium text-white hover:bg-primary-700 transition-colors w-full sm:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  Send Message
+                  {status === "sending" ? "Sending..." : "Send Message"}
                 </button>
               </form>
             )}
