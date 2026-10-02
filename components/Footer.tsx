@@ -9,7 +9,7 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-surface-line bg-surface-alt">
+    <footer className="border-t border-primary-800 bg-primary-800">
       <div className="container-content py-5">
         <div className="flex flex-col items-center gap-3 text-center">
           <div className="flex items-center gap-2">
@@ -20,14 +20,14 @@ export default function Footer() {
                 target={label !== "Email" ? "_blank" : undefined}
                 rel={label !== "Email" ? "noopener noreferrer" : undefined}
                 aria-label={label}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-surface-line text-ink-soft hover:border-primary-300 hover:text-primary-600 transition-colors"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/30 text-white/80 hover:border-primary-300 hover:text-primary-300 transition-colors"
               >
                 <Icon size={14} />
               </a>
             ))}
           </div>
 
-          <p className="text-xs text-slate-muted">
+          <p className="text-xs text-white/70">
             © {siteConfig.name} {new Date().getFullYear()}
           </p>
         </div>

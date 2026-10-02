@@ -30,16 +30,16 @@ export default function Navbar() {
       className={cn(
         "fixed top-0 inset-x-0 z-50 transition-all duration-300",
         scrolled
-          ? "bg-white/90 backdrop-blur-md shadow-card"
-          : "bg-white/70 backdrop-blur-sm"
+          ? "bg-primary-800/95 backdrop-blur-md shadow-card"
+          : "bg-primary-800/90 backdrop-blur-sm"
       )}
     >
       <nav className="container-content flex items-center justify-between h-[68px]">
         <a
           href="#home"
-          className="font-display font-semibold text-lg text-ink tracking-tight"
+          className="font-display font-semibold text-lg text-white tracking-tight"
         >
-          Binita Shrestha<span className="text-primary-600">.</span>
+          Binita Shrestha<span className="text-primary-300">.</span>
         </a>
 
         {/* Desktop links */}
@@ -48,7 +48,7 @@ export default function Navbar() {
             <li key={item.href}>
               <a
                 href={item.href}
-                className="text-sm font-medium text-ink-soft hover:text-primary-600 transition-colors"
+                className="text-sm font-medium text-white/80 hover:text-primary-300 transition-colors"
               >
                 {item.label}
               </a>
@@ -58,7 +58,7 @@ export default function Navbar() {
 
         <a
           href="#contact"
-          className="hidden md:inline-flex items-center rounded-full bg-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-soft hover:bg-primary-700 transition-colors"
+          className="hidden md:inline-flex items-center rounded-full bg-white px-5 py-2.5 text-sm font-medium text-primary-800 shadow-soft hover:bg-primary-50 transition-colors"
         >
           Contact Me
         </a>
@@ -69,7 +69,7 @@ export default function Navbar() {
           aria-label={isOpen ? "Close menu" : "Open menu"}
           aria-expanded={isOpen}
           onClick={() => setIsOpen((v) => !v)}
-          className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-lg text-ink hover:bg-surface-alt transition-colors"
+          className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-lg text-white hover:bg-white/10 transition-colors"
         >
           {isOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
@@ -83,7 +83,7 @@ export default function Navbar() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="md:hidden overflow-hidden border-t border-surface-line bg-white"
+            className="md:hidden overflow-hidden border-t border-white/10 bg-primary-800"
           >
             <ul className="container-content flex flex-col py-3">
               {siteConfig.nav.map((item) => (
@@ -91,7 +91,7 @@ export default function Navbar() {
                   <a
                     href={item.href}
                     onClick={() => setIsOpen(false)}
-                    className="block py-3 text-[15px] font-medium text-ink-soft hover:text-primary-600 transition-colors"
+                    className="block py-3 text-[15px] font-medium text-white/80 hover:text-primary-300 transition-colors"
                   >
                     {item.label}
                   </a>
@@ -101,7 +101,7 @@ export default function Navbar() {
                 <a
                   href="#contact"
                   onClick={() => setIsOpen(false)}
-                  className="inline-flex w-full items-center justify-center rounded-full bg-primary-600 px-5 py-3 text-sm font-medium text-white"
+                  className="inline-flex w-full items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-medium text-primary-800"
                 >
                   Contact Me
                 </a>
