@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Github, Linkedin, Facebook, Mail } from "lucide-react";
 import { siteConfig } from "@/data/site";
@@ -27,18 +28,115 @@ const socials = [
   },
 ];
 
+/* =========================================
+   Typing animation: "Hi, I'm" -> "Binita Shrestha"
+========================================= */
+function TypedIntro({
+  greeting,
+  name,
+  onComplete,
+}: {
+  greeting: string;
+  name: string;
+  onComplete?: () => void;
+}) {
+  // Speeds in milliseconds (higher = slower)
+  const START_DELAY = 300;
+  const GREETING_SPEED = 60;
+  const NAME_SPEED = 90;
+  const PAUSE_BETWEEN = 200;
+
+  const total = greeting.length + name.length;
+  const [count, setCount] = useState(0);
+
+  // keep the latest callback without restarting the animation
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
+  useEffect(() => {
+    // Skip the animation for people who prefer reduced motion
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setCount(total);
+      onCompleteRef.current?.();
+      return;
+    }
+
+    let timer: ReturnType<typeof setTimeout>;
+    let current = 0;
+
+    const tick = () => {
+      current += 1;
+      setCount(current);
+
+      if (current >= total) {
+        onCompleteRef.current?.();
+        return;
+      }
+
+      // greeting speed -> short pause -> name speed
+      let delay = current < greeting.length ? GREETING_SPEED : NAME_SPEED;
+      if (current === greeting.length) delay = PAUSE_BETWEEN;
+      timer = setTimeout(tick, delay);
+    };
+
+    timer = setTimeout(tick, START_DELAY);
+    return () => clearTimeout(timer);
+  }, [greeting, total]);
+
+  const typedGreeting = greeting.slice(0, count);
+  const typedName = name.slice(0, Math.max(0, count - greeting.length));
+
+  return (
+    <h1>
+      {/* Real text for screen readers and search engines */}
+      <span className="sr-only">
+        {greeting} {name}
+      </span>
+
+      {/* Greeting line */}
+      <span
+        aria-hidden="true"
+        className="relative mb-4 block text-sm font-medium tracking-wide text-primary-600"
+      >
+        {/* invisible copy reserves the space so the layout never jumps */}
+        <span className="invisible">{greeting}</span>
+        <span className="absolute inset-0">
+          {typedGreeting}
+        </span>
+      </span>
+
+      {/* Name line */}
+      <span
+        aria-hidden="true"
+        className="relative block text-4xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl lg:text-[3.4rem]"
+      >
+        <span className="invisible">{name}</span>
+        <span className="absolute inset-0">
+          {typedName}
+        </span>
+      </span>
+    </h1>
+  );
+}
+
+/* =========================================
+   Hero section
+========================================= */
 export default function Hero() {
   const shouldReduceMotion = useReducedMotion();
 
-  const fadeUp = (delay: number) => ({
-    initial: shouldReduceMotion
-      ? undefined
-      : { opacity: 0, y: 20 },
+  // becomes true when "Hi, I'm Binita Shrestha" has finished typing
+  const [introDone, setIntroDone] = useState(false);
 
-    animate: shouldReduceMotion
-      ? undefined
-      : { opacity: 1, y: 0 },
-
+  // paragraph, buttons and icons wait for the typing, then appear one by one
+  const reveal = (delay: number) => ({
+    initial: shouldReduceMotion ? false : { opacity: 0, y: 20 },
+    animate:
+      shouldReduceMotion || introDone
+        ? { opacity: 1, y: 0 }
+        : { opacity: 0, y: 20 },
     transition: {
       duration: 0.6,
       delay,
@@ -67,22 +165,16 @@ export default function Hero() {
             LEFT SIDE
         ========================== */}
         <div>
-          <motion.p
-            {...fadeUp(0)}
-            className="mb-4 text-sm font-medium tracking-wide text-primary-600"
-          >
-            Hi, I&apos;m 
-          </motion.p>
+          {/* 1. "Hi, I'm" then "Binita Shrestha", typed letter by letter */}
+          <TypedIntro
+            greeting="Hi, I'm"
+            name="Binita Shrestha"
+            onComplete={() => setIntroDone(true)}
+          />
 
-          <motion.h1
-            {...fadeUp(0.08)}
-            className="text-4xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl lg:text-[3.4rem]"
-          >
-            Binita Shrestha
-          </motion.h1>
-
+          {/* 2. Paragraph */}
           <motion.p
-            {...fadeUp(0.16)}
+            {...reveal(0)}
             className="mt-6 max-w-xl text-base leading-relaxed text-slate-muted sm:text-lg"
           >
             I build clean, responsive web interfaces with React, Next.js and
@@ -90,9 +182,9 @@ export default function Hero() {
             detail I picked up managing office and accounting systems.
           </motion.p>
 
-          {/* Buttons */}
+          {/* 3. Buttons */}
           <motion.div
-            {...fadeUp(0.24)}
+            {...reveal(0.15)}
             className="mt-9 flex flex-wrap items-center gap-4"
           >
             <a
@@ -111,28 +203,22 @@ export default function Hero() {
             </a>
           </motion.div>
 
-          {/* Social icons */}
-          <motion.div
-            {...fadeUp(0.32)}
-            className="mt-9 flex items-center gap-4"
-          >
-            {socials.map(({ icon: Icon, href, label }) => (
-              <a
+          {/* 4. Social icons, one after another */}
+          <div className="mt-9 flex items-center gap-4">
+            {socials.map(({ icon: Icon, href, label }, i) => (
+              <motion.a
                 key={label}
+                {...reveal(0.3 + i * 0.1)}
                 href={href}
                 target={label !== "Email" ? "_blank" : undefined}
-                rel={
-                  label !== "Email"
-                    ? "noopener noreferrer"
-                    : undefined
-                }
+                rel={label !== "Email" ? "noopener noreferrer" : undefined}
                 aria-label={label}
                 className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-surface-line text-ink-soft transition-colors hover:border-primary-300 hover:text-primary-600"
               >
                 <Icon size={18} />
-              </a>
+              </motion.a>
             ))}
-          </motion.div>
+          </div>
         </div>
 
         {/* =========================
@@ -140,14 +226,10 @@ export default function Hero() {
         ========================== */}
         <motion.div
           initial={
-            shouldReduceMotion
-              ? undefined
-              : { opacity: 0, scale: 0.94 }
+            shouldReduceMotion ? undefined : { opacity: 0, scale: 0.94 }
           }
           animate={
-            shouldReduceMotion
-              ? undefined
-              : { opacity: 1, scale: 1 }
+            shouldReduceMotion ? undefined : { opacity: 1, scale: 1 }
           }
           transition={{
             duration: 0.7,
