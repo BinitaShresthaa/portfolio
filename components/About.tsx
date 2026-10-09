@@ -47,7 +47,7 @@ export default function About() {
               </p>
               <p>
                 Before focusing on development, I worked as an Office
-                Assistant, where I handled documentation, record-keeping and
+                Assistant, where I handled documentation, record keeping and
                 day-to-day customer service experience that taught me to
                 work carefully, stay organized and follow through on details,
                 habits I carry into every project I build.
