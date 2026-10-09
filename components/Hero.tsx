@@ -23,7 +23,8 @@ const socials = [
   },
   {
     icon: Mail,
-    href: siteConfig.social.email,
+    // Opens Gmail with a new message already addressed to you
+    href: `https://mail.google.com/mail/?view=cm&fs=1&to=${siteConfig.email}&su=${encodeURIComponent("Hello from your portfolio")}`,
     label: "Email",
   },
 ];
@@ -210,8 +211,8 @@ export default function Hero() {
                 key={label}
                 {...reveal(0.3 + i * 0.1)}
                 href={href}
-                target={label !== "Email" ? "_blank" : undefined}
-                rel={label !== "Email" ? "noopener noreferrer" : undefined}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label={label}
                 className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-surface-line text-ink-soft transition-colors hover:border-primary-300 hover:text-primary-600"
               >
