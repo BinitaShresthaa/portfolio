@@ -30,7 +30,7 @@ export const projects: Project[] = [
     category: "Desktop-Based",
     githubUrl: "https://github.com/BinitaShresthaa/Tackled-Task",
     liveUrl: undefined,
-    // no image yet -> gradient placeholder is shown
+    image: "/tackledtask.png",
   },
   {
     slug: "student-information-system",

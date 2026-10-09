@@ -3,7 +3,7 @@
 // information — everything else here comes straight from your
 // resume, so it should already be accurate.
 // ─────────────────────────────────────────────────────────────
-
+export const WHATSAPP_NUMBER = "9779819185429";
 export const siteConfig = {
   name: "Binita Shrestha",
   role: "Frontend Developer",

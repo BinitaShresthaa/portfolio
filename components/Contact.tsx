@@ -1,13 +1,24 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { CheckCircle2, Github, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Github,
+  Linkedin,
+  Mail,
+  MapPin,
+  MessageCircle,
+  MessageSquare,
+  Phone,
+  User,
+} from "lucide-react";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
-import { siteConfig } from "@/data/site";
+import { siteConfig, WHATSAPP_NUMBER } from "@/data/site";
 
-type Errors = Partial<Record<"name" | "email" | "message", string>>;
-type Status = "idle" | "sending" | "success" | "error";
+type Field = "name" | "phone" | "email" | "message";
+type Errors = Partial<Record<Field, string>>;
 
 const contactInfo = [
   { icon: Mail, label: siteConfig.email, href: `mailto:${siteConfig.email}` },
@@ -20,57 +31,66 @@ const socialLinks = [
   { icon: Linkedin, label: "LinkedIn", href: siteConfig.social.linkedin },
 ];
 
+const inputClass =
+  "w-full rounded-xl border border-surface-line px-4 py-3.5 text-sm text-ink placeholder:text-slate-muted focus:border-primary-400 outline-none transition-colors";
+const labelClass =
+  "flex items-center gap-2 text-sm font-semibold text-ink mb-2.5";
+
 export default function Contact() {
   const [values, setValues] = useState({
     name: "",
+    phone: "",
     email: "",
     message: "",
-    company_url: "",
   });
   const [errors, setErrors] = useState<Errors>({});
-  const [status, setStatus] = useState<Status>("idle");
-  const [serverError, setServerError] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  function update(field: Field, value: string) {
+    setValues((v) => ({ ...v, [field]: value }));
+  }
 
   function validate(): boolean {
     const next: Errors = {};
     if (!values.name.trim()) next.name = "Please enter your name.";
+
+    const digits = values.phone.replace(/\D/g, "");
+    if (!values.phone.trim()) {
+      next.phone = "Please enter your phone number.";
+    } else if (digits.length < 7 || digits.length > 15) {
+      next.phone = "Please enter a valid phone number.";
+    }
+
     if (!values.email.trim()) {
       next.email = "Please enter your email.";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
       next.email = "Please enter a valid email address.";
     }
-    if (!values.message.trim()) next.message = "Please enter a message.";
+
+    if (!values.message.trim()) {
+      next.message = "Please enter a message.";
+    } else if (values.message.trim().length < 10) {
+      next.message = "Your message must be at least 10 characters long.";
+    }
     setErrors(next);
     return Object.keys(next).length === 0;
   }
 
-  async function handleSubmit(e: FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (status === "sending" || !validate()) return;
+    if (!validate()) return;
 
-    setStatus("sending");
-    setServerError("");
+    const text =
+      `Hi, I'm ${values.name.trim()}.\n` +
+      `Phone: ${values.phone.trim()}\n` +
+      `Email: ${values.email.trim()}\n\n` +
+      `${values.message.trim()}`;
 
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      const data = await res.json().catch(() => ({}));
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
 
-      if (!res.ok) {
-        setServerError(data.error || "Something went wrong. Please try again.");
-        setStatus("error");
-        return;
-      }
-
-      setValues({ name: "", email: "", message: "", company_url: "" });
-      setStatus("success");
-    } catch {
-      setServerError("Network error. Please check your connection and try again.");
-      setStatus("error");
-    }
+    setValues({ name: "", phone: "", email: "", message: "" });
+    setSubmitted(true);
   }
 
   return (
@@ -122,17 +142,18 @@ export default function Contact() {
           </Reveal>
 
           <Reveal delay={0.1}>
-            {status === "success" ? (
+            {submitted ? (
               <div className="rounded-2xl border border-primary-100 bg-primary-50 p-8 flex flex-col items-start gap-3">
                 <CheckCircle2 className="text-primary-600" size={28} />
                 <p className="font-display font-semibold text-ink">
-                  Message sent
+                  WhatsApp opened
                 </p>
                 <p className="text-sm text-slate-muted leading-relaxed">
-                  Thanks for reaching out. I'll get back to you as soon as I can.
+                  Your message is ready in WhatsApp. Just press send there and
+                  I'll get back to you as soon as I can.
                 </p>
                 <button
-                  onClick={() => setStatus("idle")}
+                  onClick={() => setSubmitted(false)}
                   className="text-sm font-medium text-primary-600 hover:text-primary-700"
                 >
                   Send another message
@@ -142,110 +163,108 @@ export default function Contact() {
               <form
                 noValidate
                 onSubmit={handleSubmit}
-                className="relative rounded-2xl border border-surface-line p-6 sm:p-8 space-y-5"
+                className="rounded-2xl border border-surface-line p-6 sm:p-8"
               >
-                {/* Hidden spam trap: real users never see or fill this */}
-                <div
-                  className="absolute -left-[9999px] h-0 w-0 overflow-hidden"
-                  aria-hidden="true"
-                >
-                  <label htmlFor="company_url">Company URL</label>
-                  <input
-                    id="company_url"
-                    name="company_url"
-                    type="text"
-                    tabIndex={-1}
-                    autoComplete="new-password"
-                    value={values.company_url}
-                    onChange={(e) =>
-                      setValues((v) => ({ ...v, company_url: e.target.value }))
-                    }
-                  />
-                </div>
+                <h3 className="font-display text-xl font-semibold text-ink">
+                  Send Me a Message
+                </h3>
+                <p className="mt-2 text-sm text-slate-muted">
+                  Fill out the form below and I&apos;ll get back to you via
+                  WhatsApp as soon as possible.
+                </p>
+                <hr className="my-6 border-surface-line" />
 
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-ink mb-1.5"
-                  >
-                    Name
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    value={values.name}
-                    onChange={(e) =>
-                      setValues((v) => ({ ...v, name: e.target.value }))
-                    }
-                    className="w-full rounded-lg border border-surface-line px-4 py-2.5 text-sm text-ink placeholder:text-slate-muted focus:border-primary-400 outline-none transition-colors"
-                    placeholder="Your name"
-                    aria-invalid={!!errors.name}
-                  />
-                  {errors.name && (
-                    <p className="mt-1.5 text-xs text-red-600">{errors.name}</p>
-                  )}
-                </div>
+                <div className="space-y-6">
+                  <div>
+                    <label htmlFor="name" className={labelClass}>
+                      <User size={15} className="text-primary-600" />
+                      Full Name
+                    </label>
+                    <input
+                      id="name"
+                      name="name"
+                      type="text"
+                      value={values.name}
+                      onChange={(e) => update("name", e.target.value)}
+                      className={inputClass}
+                      placeholder="Your full name"
+                      aria-invalid={!!errors.name}
+                    />
+                    {errors.name && (
+                      <p className="mt-1.5 text-xs text-red-600">{errors.name}</p>
+                    )}
+                  </div>
 
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-ink mb-1.5"
-                  >
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    value={values.email}
-                    onChange={(e) =>
-                      setValues((v) => ({ ...v, email: e.target.value }))
-                    }
-                    className="w-full rounded-lg border border-surface-line px-4 py-2.5 text-sm text-ink placeholder:text-slate-muted focus:border-primary-400 outline-none transition-colors"
-                    placeholder="you@example.com"
-                    aria-invalid={!!errors.email}
-                  />
-                  {errors.email && (
-                    <p className="mt-1.5 text-xs text-red-600">{errors.email}</p>
-                  )}
-                </div>
+                  <div>
+                    <label htmlFor="phone" className={labelClass}>
+                      <Phone size={15} className="text-primary-600" />
+                      Phone Number
+                    </label>
+                    <input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      value={values.phone}
+                      onChange={(e) => update("phone", e.target.value)}
+                      className={inputClass}
+                      placeholder="+977 9800000000"
+                      aria-invalid={!!errors.phone}
+                    />
+                    {errors.phone && (
+                      <p className="mt-1.5 text-xs text-red-600">{errors.phone}</p>
+                    )}
+                  </div>
 
-                <div>
-                  <label
-                    htmlFor="message"
-                    className="block text-sm font-medium text-ink mb-1.5"
-                  >
-                    Message
-                  </label>
-                  <textarea
-                    id="message"
-                    rows={5}
-                    value={values.message}
-                    onChange={(e) =>
-                      setValues((v) => ({ ...v, message: e.target.value }))
-                    }
-                    className="w-full resize-none rounded-lg border border-surface-line px-4 py-2.5 text-sm text-ink placeholder:text-slate-muted focus:border-primary-400 outline-none transition-colors"
-                    placeholder="Tell me a bit about the opportunity or question..."
-                    aria-invalid={!!errors.message}
-                  />
-                  {errors.message && (
-                    <p className="mt-1.5 text-xs text-red-600">
-                      {errors.message}
-                    </p>
-                  )}
-                </div>
+                  <div>
+                    <label htmlFor="email" className={labelClass}>
+                      <Mail size={15} className="text-primary-600" />
+                      Email Address
+                    </label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={values.email}
+                      onChange={(e) => update("email", e.target.value)}
+                      className={inputClass}
+                      placeholder="john.doe@example.com"
+                      aria-invalid={!!errors.email}
+                    />
+                    {errors.email && (
+                      <p className="mt-1.5 text-xs text-red-600">{errors.email}</p>
+                    )}
+                  </div>
 
-                {status === "error" && (
-                  <p className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-700">
-                    {serverError}
-                  </p>
-                )}
+                  <div>
+                    <label htmlFor="message" className={labelClass}>
+                      <MessageSquare size={15} className="text-primary-600" />
+                      Your Message
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      rows={6}
+                      value={values.message}
+                      onChange={(e) => update("message", e.target.value)}
+                      className={`${inputClass} resize-none`}
+                      placeholder="Tell me about your project, timeline, budget, or any specific requirements..."
+                      aria-invalid={!!errors.message}
+                    />
+                    {errors.message && (
+                      <p className="mt-1.5 text-xs text-red-600">
+                        {errors.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
 
                 <button
                   type="submit"
-                  disabled={status === "sending"}
-                  className="inline-flex items-center justify-center rounded-full bg-primary-600 px-6 py-3 text-sm font-medium text-white hover:bg-primary-700 transition-colors w-full sm:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-6 py-4 text-sm font-semibold text-white hover:bg-primary-700 transition-colors"
                 >
-                  {status === "sending" ? "Sending..." : "Send Message"}
+                  <MessageCircle size={17} />
+                  Send via WhatsApp
+                  <ArrowRight size={16} />
                 </button>
               </form>
             )}
