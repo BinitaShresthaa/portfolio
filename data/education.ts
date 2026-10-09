@@ -23,7 +23,7 @@ export const education: EducationItem[] = [
     degree: "Higher Secondary Education (+2)",
     institution: "Satyawati Secondary School",
     location: "Vyas-2, Damauli, Tanahun",
-    duration: "2021 — 2022",
+    duration: "2021 — 2023",
     // Edit this line to describe your stream and subjects
     description: "Completed Higher Secondary Education (+2).",
   },
