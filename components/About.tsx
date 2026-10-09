@@ -55,7 +55,7 @@ export default function About() {
               <p>
                 I&apos;m especially interested in frontend and full-stack web
                 development, and I&apos;m continuing to build my skills
-                through coursework, workshops and hands-on projects like the
+                through coursework, workshops and hands on projects like the
                 ones below.
               </p>
             </div>

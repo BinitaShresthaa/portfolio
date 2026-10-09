@@ -11,7 +11,7 @@ export const services: Service[] = [
   {
     title: "Frontend Development",
     description:
-      "Building interactive, well-structured interfaces with React, Next.js and Tailwind CSS.",
+      "Building interactive, well structured interfaces with React, Next.js and Tailwind CSS.",
     icon: "layout",
   },
   {

@@ -14,7 +14,7 @@ export const projects: Project[] = [
     slug: "college-admission-management-system",
     title: "College Admission Management System",
     description:
-      "A system to manage student admission records — registration, application tracking and status updates — replacing a manual, paper-based admission process.",
+      "A system to manage student admission records registration, application tracking and status updates replacing a manual, paper-based admission process.",
     tech: ["Html", "CSS", "Javascript", "MySQL"],
     category: "Web-Based",
     githubUrl: "https://github.com/BinitaShresthaa/college-admission",

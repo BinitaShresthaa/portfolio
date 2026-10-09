@@ -178,7 +178,7 @@ export default function Hero() {
             className="mt-6 max-w-xl text-base leading-relaxed text-slate-muted sm:text-lg"
           >
             I build clean, responsive web interfaces with React, Next.js and
-            Tailwind CSS — and bring the same discipline for records and
+            Tailwind CSS and bring the same discipline for records and
             detail I picked up managing office and accounting systems.
           </motion.p>
 

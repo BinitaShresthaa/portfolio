@@ -8,7 +8,7 @@ export const siteConfig = {
   name: "Binita Shrestha",
   role: "Frontend Developer",
   tagline:
-    "I build clean, responsive web interfaces with React, Next.js and Tailwind CSS — and bring the same discipline for records and detail I picked up managing office and accounting systems.",
+    "I build clean, responsive web interfaces with React, Next.js and Tailwind CSS and bring the same discipline for records and detail I picked up managing office and accounting systems.",
   shortBio:
     "BICTE student and frontend developer based in Tanahun, Nepal, currently building projects with React, Next.js and Tailwind CSS.",
   location: "Patan, Tanahun, Nepal",
